@@ -60,7 +60,7 @@ public class GeradorDeReport {
 		try {
 			WebDriverWait wait = new WebDriverWait(driver, 60);
 			WebDriverWait waitf = new WebDriverWait(driver, 10);
-			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13315/manage-execution";
+			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/2814/manage-execution";
 
 			// telaLogin
 			String txtUser = "//*[@id=\"Username\"]";
@@ -326,7 +326,7 @@ public class GeradorDeReport {
 		chromeOptions.addArguments("--disable-web-security");
 		chromeOptions.addArguments("disable-infobars");
 		chromeOptions.addArguments("--window-size=1920,1080");
-		chromeOptions.addArguments("--headless");
+//		chromeOptions.addArguments("--headless");
 		chromeOptions.setPageLoadStrategy(PageLoadStrategy.NONE);
 //		chromeOptions.addExtensions(new File(System.getProperty("user.dir") + File.separator + "Extensions"
 //				+ File.separator + "extension_2_3_164_0.crx"));
