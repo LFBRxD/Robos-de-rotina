@@ -23,7 +23,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class DistribuidorDeMaquinas {
 	private static WebDriver driver = null;
+
+	// configuradores da classe
 	private static Boolean sequencial = true;
+	final static String executionConfiguration = " (4.0) Selenium + Chrome + Locator 2 ";
+
 	static String login = "";
 	static String password = "";
 	final static String computerList[] = { "HDIWUFTAPP01 ", "HDIWUFTAPP01A", "HDIWUFTAPP01B", "HDIWUFTAPP01C",
@@ -38,6 +42,9 @@ public class DistribuidorDeMaquinas {
 			"HDIWUFTAPP11B", "HDIWUFTAPP11C", "HDIWUFTAPP11D", "HDIWUFTAPP12 ", "HDIWUFTAPP12A", "HDIWUFTAPP12B",
 			"HDIWUFTAPP12C", "HDIWUFTAPP12D", "HDIWUFTAPP15 ", "HDIWUFTAPP15A", "HDIWUFTAPP15B", "HDIWUFTAPP15C",
 			"HDIWUFTAPP15D", "HDIWUFTAPP15E" };
+//	final static String computerList[] = { "HDIWUFTAPP01 ", "HDIWUFTAPP02 ", "HDIWUFTAPP03 ", "HDIWUFTAPP04 ",
+//			"HDIWUFTAPP05 ", "HDIWUFTAPP06 ", "HDIWUFTAPP07 ", "HDIWUFTAPP08 ", "HDIWUFTAPP09 ", "HDIWUFTAPP10 ",
+//			"HDIWUFTAPP11 ", "HDIWUFTAPP12 "};
 
 	public static Properties getProp() throws IOException {
 		Properties props = new Properties();
@@ -62,7 +69,7 @@ public class DistribuidorDeMaquinas {
 		try {
 			WebDriverWait wait = new WebDriverWait(driver, 60);
 			WebDriverWait waitf = new WebDriverWait(driver, 10);
-			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/2306";
+			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13405";
 
 			// telaLogin
 			String txtUser = "//*[@id=\"Username\"]";
@@ -76,6 +83,7 @@ public class DistribuidorDeMaquinas {
 				driver.switchTo().alert().dismiss();
 			} catch (Exception e) {
 			}
+
 			esperar(1);
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(txtUser))).sendKeys(login);
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(txtPass))).sendKeys(password);
@@ -87,10 +95,12 @@ public class DistribuidorDeMaquinas {
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnConfigExecution))).click();
 
 			String cbbComputers = "//div[.=' Test Case ']/../../td/select[@id='Worker']";
-//			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(cbbComputers)));
+			String cbbExecutionConfigItems = "//div[.=' Test Case ']/../../td/select[@id='ExecutionConfigItems']";
+
 			wait.until(ExpectedConditions.elementToBeClickable(By.xpath(cbbComputers)));
-//			esperar(5000);
+
 			List<WebElement> listCbbComputers = driver.findElements(By.xpath(cbbComputers));
+			List<WebElement> listCbbExecutionConfig = driver.findElements(By.xpath(cbbExecutionConfigItems));
 
 			Random rdn = new Random();
 			int index = 0;
@@ -105,8 +115,19 @@ public class DistribuidorDeMaquinas {
 				} catch (ArrayIndexOutOfBoundsException e) {
 					index = 0;
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+			}
+			if (!executionConfiguration.isBlank()) {
+				for (WebElement webElement : listCbbExecutionConfig) {
+					try {
+						final Select executionConfig = new Select(webElement);
+						executionConfig.selectByVisibleText(executionConfiguration.trim());
+					} catch (ArrayIndexOutOfBoundsException e) {
+						index = 0;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			String btnSave = "//button[.='Computer List']/../button[ @type='submit' and .='Save']";
