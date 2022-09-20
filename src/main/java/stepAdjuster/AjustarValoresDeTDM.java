@@ -183,8 +183,10 @@ public class AjustarValoresDeTDM {
 								action.moveToElement(we).moveToElement(driver.findElement(By.xpath(xpathTdParaEditar)))
 										.doubleClick().build().perform();
 
-								wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputTDMValue)))
-										.sendKeys(entry.getValue());
+								WebElement txtElement = wait
+										.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputTDMValue)));
+								txtElement.clear();
+								txtElement.sendKeys(entry.getValue());
 							}
 
 							final String btnSalvarValorTDM = "//button[.='Import']/../button[.='Save']";
