@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -123,8 +124,14 @@ public class AjustarValoresDeTDM {
 						+ (pageId++) + "']";
 				String nextPageToSelect = "//li[contains(@class,'page-item')]/a/span[.='" + (pageId) + "']";
 
-				wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(currentPageSelected)));
-				esperar(3);
+				try {
+					esperar(3);
+					waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(currentPageSelected)));
+				} catch (ElementClickInterceptedException e) {
+					e.printStackTrace();
+					esperar(60);
+				} catch (Exception e) {
+				}
 
 				// logica para interar sobre cada um dos elementos
 
@@ -134,6 +141,9 @@ public class AjustarValoresDeTDM {
 				try {
 					System.out.println("\n\n");
 					for (String webElement : currentList) {
+
+						performCancell(waitf, btnCancel);
+
 						System.out.println(webElement);
 						try {
 							String xpathExpression = "//td[contains(@title,'" + webElement.replace("...", "") + "')]"
@@ -154,7 +164,6 @@ public class AjustarValoresDeTDM {
 									ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathTituloValueTDMEdit)));
 
 							for (Entry<String, String> entry : dadosPasso.entrySet()) {
-								System.out.println(entry.getKey() + " : " + entry.getValue());
 
 								final String xpathTdParaEditar = "//thead/tr/th/div/span[.='" + entry.getKey()
 										+ "']/ancestor::table/tbody/tr/td[contains(@class,'highlight')]";
@@ -173,20 +182,27 @@ public class AjustarValoresDeTDM {
 										WebElement td = wait
 												.until(ExpectedConditions.elementToBeClickable(By.xpath(localXpath)));
 
-										td.click();
-										action.moveToElement(td).moveToElement(td).click().build().perform();
+										if (!td.getText().equalsIgnoreCase(entry.getValue())) {
+											td.click();
+											action.moveToElement(td).moveToElement(td).click().build().perform();
+
+											wait.until(ExpectedConditions
+													.visibilityOfElementLocated(By.xpath(xpathTdParaEditar)));
+											WebElement we = driver.findElement(By.xpath(xpathTdParaEditar));
+											action.moveToElement(we)
+													.moveToElement(driver.findElement(By.xpath(xpathTdParaEditar)))
+													.doubleClick().build().perform();
+
+											WebElement txtElement = wait.until(ExpectedConditions
+													.visibilityOfElementLocated(By.xpath(inputTDMValue)));
+											System.out.println("Value: " + txtElement.getDomAttribute("value") + " "
+													+ entry.getKey() + " : " + entry.getValue());
+											txtElement.clear();
+											txtElement.sendKeys(entry.getValue());
+										}
 									}
 								});
 
-								wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathTdParaEditar)));
-								WebElement we = driver.findElement(By.xpath(xpathTdParaEditar));
-								action.moveToElement(we).moveToElement(driver.findElement(By.xpath(xpathTdParaEditar)))
-										.doubleClick().build().perform();
-
-								WebElement txtElement = wait
-										.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputTDMValue)));
-								txtElement.clear();
-								txtElement.sendKeys(entry.getValue());
 							}
 
 							final String btnSalvarValorTDM = "//button[.='Import']/../button[.='Save']";
@@ -204,31 +220,11 @@ public class AjustarValoresDeTDM {
 						wait.until(ExpectedConditions
 								.visibilityOfElementLocated(By.xpath(msgRegisterUpdatedSuccessfully)));
 
-						// cancelar e ir pro proximo
-						List<WebElement> lBtnCancel = driver.findElements(By.xpath(btnCancel));
-						try {
-							while (lBtnCancel.size() > 0) {
-								try {
-									waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnCancel)));
-									lBtnCancel.forEach(e -> {
-										e.click();
-										try {
-											Thread.sleep(150);
-										} catch (InterruptedException e1) {
-											e1.printStackTrace();
-										}
-									});
-								} catch (Exception e) {
-									lBtnCancel.get(lBtnCancel.size() - 1).click();
-									lBtnCancel = driver.findElements(By.xpath(btnCancel));
-								}
-							}
-						} catch (Exception e) {
-						}
+						performCancell(waitf, btnCancel);
+
 					}
 				} catch (StaleElementReferenceException e) {
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 
 				// check if has next page to iterate
@@ -277,6 +273,30 @@ public class AjustarValoresDeTDM {
 
 	}
 
+	private static void performCancell(WebDriverWait waitf, String btnCancel) {
+		// cancelar e ir pro proximo
+		List<WebElement> lBtnCancel = driver.findElements(By.xpath(btnCancel));
+		try {
+			while (lBtnCancel.size() > 0) {
+				try {
+					waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnCancel)));
+					lBtnCancel.forEach(e -> {
+						e.click();
+						try {
+							Thread.sleep(150);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					});
+				} catch (Exception e) {
+					lBtnCancel.get(lBtnCancel.size() - 1).click();
+					lBtnCancel = driver.findElements(By.xpath(btnCancel));
+				}
+			}
+		} catch (Exception e) {
+		}
+	}
+
 	private static void pageSCenaries(List<String> currentList, List<WebElement> ownElements) {
 		currentList.clear();
 		esperar(1);
@@ -303,14 +323,11 @@ public class AjustarValoresDeTDM {
 		Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
 		Logger.getLogger("org.slf4j.impl.StaticLoggerBinder").setLevel(Level.OFF);
 		ChromeOptions chromeOptions = new ChromeOptions();
-		// chromeOptions.addArguments("--user-data-dir=C:/Users/grupohdi01/AppData/Local/Google/Chrome/User
-		// Data");
-		// chromeOptions.addArguments("--profile-directory=Default");
 		chromeOptions.addArguments("--lang=pt");
 		chromeOptions.addArguments("--no-sandbox");
 		chromeOptions.addArguments("--disable-web-security");
 		chromeOptions.addArguments("disable-infobars");
-		chromeOptions.addArguments("--window-size=1920,1080");
+//		chromeOptions.addArguments("--window-size=1920,1080");
 //		chromeOptions.addArguments("--headless");
 		chromeOptions.setPageLoadStrategy(PageLoadStrategy.NONE);
 		driver = new ChromeDriver(chromeOptions);
