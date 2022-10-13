@@ -1,6 +1,5 @@
 package stepAdjuster;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -21,15 +20,24 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 public class DistribuidorDeMaquinas {
 	private static WebDriver driver = null;
 
 	// configuradores da classe
 	private static Boolean sequencial = true;
+//	final static String executionConfiguration = " Selenium + Chrome + Locator 2 ";
 	final static String executionConfiguration = " (4.0) Selenium + Chrome + Locator 2 ";
+	private static boolean changeConfigurator = false;
 
 	static String login = "";
 	static String password = "";
+//	final static String computerList[] = { "HDIWUFTAPP09 ", "HDIWUFTAPP09A", "HDIWUFTAPP09B", "HDIWUFTAPP09C",
+//			"HDIWUFTAPP09D", "HDIWUFTAPP10 ", "HDIWUFTAPP10A", "HDIWUFTAPP10B", "HDIWUFTAPP10C", "HDIWUFTAPP10D",
+//			"HDIWUFTAPP11 ", "HDIWUFTAPP11A", "HDIWUFTAPP11B", "HDIWUFTAPP11C", "HDIWUFTAPP11D", "HDIWUFTAPP12 ",
+//			"HDIWUFTAPP12A", "HDIWUFTAPP12B", "HDIWUFTAPP12C", "HDIWUFTAPP12D", "HDIWUFTAPP15 ", "HDIWUFTAPP15A",
+//			"HDIWUFTAPP15B", "HDIWUFTAPP15C", "HDIWUFTAPP15D", "HDIWUFTAPP15E" };
 	final static String computerList[] = { "HDIWUFTAPP01 ", "HDIWUFTAPP01A", "HDIWUFTAPP01B", "HDIWUFTAPP01C",
 			"HDIWUFTAPP01D", "HDIWUFTAPP02 ", "HDIWUFTAPP02A", "HDIWUFTAPP02B", "HDIWUFTAPP02C", "HDIWUFTAPP02D",
 			"HDIWUFTAPP03 ", "HDIWUFTAPP03A", "HDIWUFTAPP03B", "HDIWUFTAPP03C", "HDIWUFTAPP03D", "HDIWUFTAPP04 ",
@@ -40,11 +48,10 @@ public class DistribuidorDeMaquinas {
 			"HDIWUFTAPP09 ", "HDIWUFTAPP09A", "HDIWUFTAPP09B", "HDIWUFTAPP09C", "HDIWUFTAPP09D", "HDIWUFTAPP10 ",
 			"HDIWUFTAPP10A", "HDIWUFTAPP10B", "HDIWUFTAPP10C", "HDIWUFTAPP10D", "HDIWUFTAPP11 ", "HDIWUFTAPP11A",
 			"HDIWUFTAPP11B", "HDIWUFTAPP11C", "HDIWUFTAPP11D", "HDIWUFTAPP12 ", "HDIWUFTAPP12A", "HDIWUFTAPP12B",
-			"HDIWUFTAPP12C", "HDIWUFTAPP12D", "HDIWUFTAPP15 ", "HDIWUFTAPP15A", "HDIWUFTAPP15B", "HDIWUFTAPP15C",
-			"HDIWUFTAPP15D", "HDIWUFTAPP15E" };
+			"HDIWUFTAPP12C", "HDIWUFTAPP12D" };
 //	final static String computerList[] = { "HDIWUFTAPP01 ", "HDIWUFTAPP02 ", "HDIWUFTAPP03 ", "HDIWUFTAPP04 ",
 //			"HDIWUFTAPP05 ", "HDIWUFTAPP06 ", "HDIWUFTAPP07 ", "HDIWUFTAPP08 ", "HDIWUFTAPP09 ", "HDIWUFTAPP10 ",
-//			"HDIWUFTAPP11 ", "HDIWUFTAPP12 "};
+//			"HDIWUFTAPP11 ", "HDIWUFTAPP12 " };
 
 	public static Properties getProp() throws IOException {
 		Properties props = new Properties();
@@ -69,7 +76,7 @@ public class DistribuidorDeMaquinas {
 		try {
 			WebDriverWait wait = new WebDriverWait(driver, 60);
 			WebDriverWait waitf = new WebDriverWait(driver, 10);
-			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13405";
+			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13298";
 
 			// telaLogin
 			String txtUser = "//*[@id=\"Username\"]";
@@ -118,15 +125,17 @@ public class DistribuidorDeMaquinas {
 					e.printStackTrace();
 				}
 			}
-			if (!executionConfiguration.isBlank()) {
-				for (WebElement webElement : listCbbExecutionConfig) {
-					try {
-						final Select executionConfig = new Select(webElement);
-						executionConfig.selectByVisibleText(executionConfiguration.trim());
-					} catch (ArrayIndexOutOfBoundsException e) {
-						index = 0;
-					} catch (Exception e) {
-						e.printStackTrace();
+			if (changeConfigurator) {
+				if (!executionConfiguration.isBlank()) {
+					for (WebElement webElement : listCbbExecutionConfig) {
+						try {
+							final Select executionConfig = new Select(webElement);
+							executionConfig.selectByVisibleText(executionConfiguration.trim());
+						} catch (ArrayIndexOutOfBoundsException e) {
+							index = 0;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -151,8 +160,7 @@ public class DistribuidorDeMaquinas {
 	}
 
 	private static void startDriver() {
-		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + File.separator + "DriverSelenium"
-				+ File.separator + "chromedriver.exe");
+		WebDriverManager.chromedriver().setup();
 		System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
 		Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
 		Logger.getLogger("org.slf4j.impl.StaticLoggerBinder").setLevel(Level.OFF);

@@ -1,6 +1,5 @@
 package stepAdjuster;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,13 +26,15 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 public class AjustarValoresDeTDM {
 
 	static String login = "";
 	static String password = "";
 
 	static String tituloDoPasso = null;
-	static Map<String, String> dadosPasso = new HashMap<String, String>();
+	static Map<String, String> dadosPasso = new HashMap<>();
 	private static WebDriver driver = null;
 
 	public static Properties getProp() throws IOException {
@@ -46,16 +47,24 @@ public class AjustarValoresDeTDM {
 
 	/**
 	 * Cria a lista de elementos para ajustar
-	 * 
+	 *
 	 */
 	private static void createListOfElementsToEdit() {
 		// passo para editar
-		tituloDoPasso = "Preencher Local de Risco";
+		tituloDoPasso = "Clicar no Link Usuário";
 
 		// campos para editar
-		dadosPasso.put("TXT_CEP", "17560246");
-		dadosPasso.put("TXT_ESTADO", "<IGNORE>");
-		dadosPasso.put("TXT_CIDADE", "<IGNORE>");
+		dadosPasso.put("GRD_Corretores", "#c.intranetUser");
+//		dadosPasso.put("CBO_COD_ATIVIDADE RISCO", "index;1");
+//		dadosPasso.put("CBO_CONSTRUÇÃO", "index;1");
+
+//		// passo para editar
+//		tituloDoPasso = "Preencher Dados do Produto";
+//
+//		// campos para editar
+//		dadosPasso.put("CBO_PRODUTO", "index;1");
+//		dadosPasso.put("TXT_INICIO_VIGENCIA", "<IGNORE>");
+//		dadosPasso.put("TXT_FIM_VIGENCIA", "<IGNORE>");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -74,9 +83,9 @@ public class AjustarValoresDeTDM {
 		startDriver();
 		driver.manage().window().maximize();
 		try {
-			WebDriverWait wait = new WebDriverWait(driver, 60);
+			WebDriverWait wait = new WebDriverWait(driver, 30);
 			WebDriverWait waitf = new WebDriverWait(driver, 10);
-			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13405/manage-execution";
+			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13298/manage-execution";
 
 			// telaLogin
 			String txtUser = "//*[@id=\"Username\"]";
@@ -105,10 +114,10 @@ public class AjustarValoresDeTDM {
 
 			String xpathExpressionAllButtonFilter = "//div[@class='btn-group btn-group-toggle']/label[contains(.,'All')]";
 
-			List<String> currentList = new ArrayList<String>();
-			List<String> totalList = new ArrayList<String>();
+			List<String> currentList = new ArrayList<>();
+			List<String> totalList = new ArrayList<>();
 
-			Map<String, Integer> incidenciasDeFalha = new HashMap<String, Integer>();
+			Map<String, Integer> incidenciasDeFalha = new HashMap<>();
 
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpressionAllButtonFilter)));
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpressionAllButtonFilter))).click();
@@ -141,10 +150,7 @@ public class AjustarValoresDeTDM {
 				try {
 					System.out.println("\n\n");
 					for (String webElement : currentList) {
-
 						performCancell(waitf, btnCancel);
-
-						System.out.println(webElement);
 						try {
 							String xpathExpression = "//td[contains(@title,'" + webElement.replace("...", "") + "')]"
 									+ btnEditAction;
@@ -158,8 +164,12 @@ public class AjustarValoresDeTDM {
 							final String xpathButtonEdit = "//div/span[contains(.,'" + tituloDoPasso
 									+ "')]/../../div[2]/div[2]/button[1]";
 							final String xpathTituloValueTDMEdit = "//h1[contains(.,'Values of Action from ')]";
-							wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathButtonEdit)))
-									.click();
+//							waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathButtonEdit)))
+//									.click();
+
+							driver.findElement(By.xpath(xpathButtonEdit)).click();
+
+							System.out.println("Editando " + webElement);
 							wait.until(
 									ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathTituloValueTDMEdit)));
 
@@ -195,8 +205,7 @@ public class AjustarValoresDeTDM {
 
 											WebElement txtElement = wait.until(ExpectedConditions
 													.visibilityOfElementLocated(By.xpath(inputTDMValue)));
-											System.out.println("Value: " + txtElement.getDomAttribute("value") + " "
-													+ entry.getKey() + " : " + entry.getValue());
+
 											txtElement.clear();
 											txtElement.sendKeys(entry.getValue());
 										}
@@ -210,25 +219,25 @@ public class AjustarValoresDeTDM {
 							wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnSalvarValorTDM)))
 									.click();
 
+							final String msgRegisterUpdatedSuccessfully = "//*[contains(.,'Register updated successfully')]";
+							wait.until(ExpectedConditions
+									.visibilityOfElementLocated(By.xpath(msgRegisterUpdatedSuccessfully)));
 						} catch (TimeoutException ignore) {
-							ignore.printStackTrace();
+						} catch (NoSuchElementException ignore) {
+//							ignore.printStackTrace();
 						} catch (Exception e) {
-							e.printStackTrace();
+							throw e;
 						}
-
-						final String msgRegisterUpdatedSuccessfully = "//*[contains(.,'Register updated successfully')]";
-						wait.until(ExpectedConditions
-								.visibilityOfElementLocated(By.xpath(msgRegisterUpdatedSuccessfully)));
-
-						performCancell(waitf, btnCancel);
 
 					}
 				} catch (StaleElementReferenceException e) {
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 
 				// check if has next page to iterate
 				try {
+					performCancell(waitf, btnCancel);
 					WebElement btnNextPage = wait3
 							.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(nextPageToSelect)));
 					btnNextPage.click();
@@ -274,23 +283,17 @@ public class AjustarValoresDeTDM {
 	}
 
 	private static void performCancell(WebDriverWait waitf, String btnCancel) {
-		// cancelar e ir pro proximo
-		List<WebElement> lBtnCancel = driver.findElements(By.xpath(btnCancel));
 		try {
-			while (lBtnCancel.size() > 0) {
+//			while (lBtnCancel.size() > 0) {
+			while (waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnCancel))).isDisplayed()) {
 				try {
-					waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnCancel)));
-					lBtnCancel.forEach(e -> {
-						e.click();
-						try {
-							Thread.sleep(150);
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
-						}
-					});
+					driver.findElement(By.xpath(btnCancel)).click();
+//					waitf.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(btnCancel))).click();
+				} catch (TimeoutException ignore) {
+					System.out.println("lancou uma  TimeoutException no cancel");
+				} catch (NoSuchElementException ignore) {
+					System.out.println("lancou uma  NoSuchElementException no cancel");
 				} catch (Exception e) {
-					lBtnCancel.get(lBtnCancel.size() - 1).click();
-					lBtnCancel = driver.findElements(By.xpath(btnCancel));
 				}
 			}
 		} catch (Exception e) {
@@ -317,8 +320,7 @@ public class AjustarValoresDeTDM {
 	}
 
 	private static void startDriver() {
-		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + File.separator + "DriverSelenium"
-				+ File.separator + "chromedriver.exe");
+		WebDriverManager.chromedriver().setup();
 		System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
 		Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
 		Logger.getLogger("org.slf4j.impl.StaticLoggerBinder").setLevel(Level.OFF);

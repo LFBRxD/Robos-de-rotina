@@ -88,10 +88,10 @@ public class AddStep {
 
 			String xpathBtnNext = "//li[contains(@class,'page-item')]/a/span[.='Next']/..";
 
-			List<String> currentList = new ArrayList<String>();
-			List<String> totalList = new ArrayList<String>();
+			List<String> currentList = new ArrayList<>();
+			List<String> totalList = new ArrayList<>();
 
-			Map<String, Integer> incidenciasDeFalha = new HashMap<String, Integer>();
+			Map<String, Integer> incidenciasDeFalha = new HashMap<>();
 
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpressionFailedButtonFilter)));
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpressionFailedButtonFilter)))
@@ -228,7 +228,7 @@ public class AddStep {
 							String xpathAction = "//button[@title='Rerun Test Case']";
 							driver.findElement(By.xpath(xpathAction)).click();
 
-//							
+//
 						}
 					}
 				} catch (StaleElementReferenceException e) {

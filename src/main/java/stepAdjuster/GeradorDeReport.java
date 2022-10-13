@@ -1,6 +1,5 @@
 package stepAdjuster;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +22,8 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class GeradorDeReport {
 
@@ -53,7 +54,7 @@ public class GeradorDeReport {
 		try {
 			WebDriverWait wait = new WebDriverWait(driver, 60);
 			WebDriverWait waitf = new WebDriverWait(driver, 10);
-			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13405/manage-execution";
+			String baseUrl = "https://app.x-celera.com/xcelera-app/secure/execution-plans/13298/manage-execution";
 
 			// telaLogin
 			String txtUser = "//*[@id=\"Username\"]";
@@ -85,10 +86,10 @@ public class GeradorDeReport {
 			String xpathTextFalha = "(//div[contains(@id,'action_')]/div/div/div/div/div[contains(@class,'bg-danger')]/ancestor::*[contains(@id,'action_')]/div/div[2]//p)[3]";
 			String xpathProcedureTitle = "//div[contains(@id,'action_')]/div/div/div/div/div[contains(@class,'bg-danger')]/ancestor::*[contains(@id,'action_')]/div/div[2]//h6";
 
-			List<String> currentList = new ArrayList<String>();
-			List<String> totalList = new ArrayList<String>();
+			List<String> currentList = new ArrayList<>();
+			List<String> totalList = new ArrayList<>();
 
-			Map<String, Integer> incidenciasDeFalha = new HashMap<String, Integer>();
+			Map<String, Integer> incidenciasDeFalha = new HashMap<>();
 
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathExpressionFailedButtonFilter)));
 //			esperar(5);
@@ -236,8 +237,7 @@ public class GeradorDeReport {
 	}
 
 	private static void startDriver() {
-		System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + File.separator + "DriverSelenium"
-				+ File.separator + "chromedriver.exe");
+		WebDriverManager.chromedriver().setup();
 		System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
 		Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
 		Logger.getLogger("org.slf4j.impl.StaticLoggerBinder").setLevel(Level.OFF);
